@@ -18,7 +18,7 @@ resource "aws_lb" "main" {
 # Target Groups: Auth Service (Blue & Green for CodeDeploy)
 # -------------------------------------------------------------
 resource "aws_lb_target_group" "auth_blue" {
-  name        = "${var.project_name}-auth-blue"
+  name        = "mf-auth-blue"
   port        = 3000
   protocol    = "HTTP"
   vpc_id      = aws_vpc.main.id
@@ -42,7 +42,7 @@ resource "aws_lb_target_group" "auth_blue" {
 }
 
 resource "aws_lb_target_group" "auth_green" {
-  name        = "${var.project_name}-auth-green"
+  name        = "mf-auth-green"
   port        = 3000
   protocol    = "HTTP"
   vpc_id      = aws_vpc.main.id
@@ -69,7 +69,7 @@ resource "aws_lb_target_group" "auth_green" {
 # Target Groups: Orders Service (Blue & Green for CodeDeploy)
 # -------------------------------------------------------------
 resource "aws_lb_target_group" "orders_blue" {
-  name        = "${var.project_name}-orders-blue"
+  name        = "mf-orders-blue"
   port        = 3001
   protocol    = "HTTP"
   vpc_id      = aws_vpc.main.id
@@ -93,7 +93,7 @@ resource "aws_lb_target_group" "orders_blue" {
 }
 
 resource "aws_lb_target_group" "orders_green" {
-  name        = "${var.project_name}-orders-green"
+  name        = "mf-orders-green"
   port        = 3001
   protocol    = "HTTP"
   vpc_id      = aws_vpc.main.id
@@ -120,7 +120,7 @@ resource "aws_lb_target_group" "orders_green" {
 # Target Groups: Notifications Service (Blue & Green for CodeDeploy)
 # --------------------------------------------------------------------
 resource "aws_lb_target_group" "notifications_blue" {
-  name        = "${var.project_name}-notif-blue"
+  name        = "mf-notif-blue"
   port        = 3002
   protocol    = "HTTP"
   vpc_id      = aws_vpc.main.id
@@ -144,7 +144,7 @@ resource "aws_lb_target_group" "notifications_blue" {
 }
 
 resource "aws_lb_target_group" "notifications_green" {
-  name        = "${var.project_name}-notif-green"
+  name        = "mf-notif-green"
   port        = 3002
   protocol    = "HTTP"
   vpc_id      = aws_vpc.main.id

@@ -47,7 +47,7 @@ resource "aws_cloudwatch_metric_alarm" "alb_high_latency" {
 
 # AWS X-Ray Sampling Rule for Distributed Tracing
 resource "aws_xray_sampling_rule" "microservices_rule" {
-  rule_name      = "${var.project_name}-sampling-rule"
+  rule_name      = "mf-xray-rule"
   priority       = 1000
   version        = 1
   reservoir_size = 5
