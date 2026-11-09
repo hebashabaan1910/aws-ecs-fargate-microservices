@@ -146,7 +146,8 @@ const server = http.createServer(async (req, res) => {
       return sendJson(res, 400, { error: 'Name, email, and password are required' });
     }
 
-    if (usersDb.has(email.toLowerCase())) {
+    const existingUser = usersDb.get(email.toLowerCase()) || await redisClient.get(`user:${email.toLowerCase()}`);
+    if (existingUser) {
       return sendJson(res, 409, { error: 'User with this email already exists' });
     }
 
@@ -163,6 +164,7 @@ const server = http.createServer(async (req, res) => {
     };
 
     usersDb.set(email.toLowerCase(), user);
+    await redisClient.set(`user:${email.toLowerCase()}`, JSON.stringify(user));
 
     return sendJson(res, 201, {
       message: 'User registered successfully',
@@ -179,7 +181,13 @@ const server = http.createServer(async (req, res) => {
       return sendJson(res, 400, { error: 'Email and password are required' });
     }
 
-    const user = usersDb.get(email.toLowerCase());
+    let user = usersDb.get(email.toLowerCase());
+    if (!user) {
+      const cached = await redisClient.get(`user:${email.toLowerCase()}`);
+      if (cached) {
+        try { user = typeof cached === 'string' ? JSON.parse(cached) : cached; } catch (e) {}
+      }
+    }
     if (!user || !verifyPassword(password, user.salt, user.hash)) {
       return sendJson(res, 401, { error: 'Invalid email or password' });
     }
