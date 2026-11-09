@@ -18,6 +18,11 @@ resource "aws_codedeploy_deployment_group" "auth" {
   service_role_arn       = aws_iam_role.codedeploy_ecs_role.arn
   deployment_config_name = "CodeDeployDefault.ECSAllAtOnce"
 
+  deployment_style {
+    deployment_option = "WITH_TRAFFIC_CONTROL"
+    deployment_type   = "BLUE_GREEN"
+  }
+
   blue_green_deployment_config {
     deployment_ready_option {
       action_on_timeout = "CONTINUE_DEPLOYMENT"
@@ -71,7 +76,12 @@ resource "aws_codedeploy_deployment_group" "orders" {
   app_name               = aws_codedeploy_app.ecs_app.name
   deployment_group_name  = "${var.project_name}-orders-dg"
   service_role_arn       = aws_iam_role.codedeploy_ecs_role.arn
-  deployment_config_name = "CodeDeployDefault.ECSLinear10PercentEvery1Minute"
+  deployment_config_name = "CodeDeployDefault.ECSLinear10PercentEvery3Minutes"
+
+  deployment_style {
+    deployment_option = "WITH_TRAFFIC_CONTROL"
+    deployment_type   = "BLUE_GREEN"
+  }
 
   blue_green_deployment_config {
     deployment_ready_option {
@@ -127,6 +137,11 @@ resource "aws_codedeploy_deployment_group" "notifications" {
   deployment_group_name  = "${var.project_name}-notifications-dg"
   service_role_arn       = aws_iam_role.codedeploy_ecs_role.arn
   deployment_config_name = "CodeDeployDefault.ECSAllAtOnce"
+
+  deployment_style {
+    deployment_option = "WITH_TRAFFIC_CONTROL"
+    deployment_type   = "BLUE_GREEN"
+  }
 
   blue_green_deployment_config {
     deployment_ready_option {

@@ -48,3 +48,4 @@ for svc in SERVICES:
         sys.exit(1)
 
 print("\nAll 3 microservice images successfully pushed to Amazon ECR!")
+
