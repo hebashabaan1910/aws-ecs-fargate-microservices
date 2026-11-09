@@ -1,0 +1,36 @@
+{
+  "executionRoleArn": "arn:aws:iam::<ACCOUNT_ID>:role/microservices-fargate-ecs-execution-role",
+  "containerDefinitions": [
+    {
+      "name": "auth-service",
+      "image": "<REPOSITORY_URI>:<IMAGE_TAG>",
+      "essential": true,
+      "portMappings": [
+        {
+          "hostPort": 3000,
+          "protocol": "tcp",
+          "containerPort": 3000
+        }
+      ],
+      "environment": [
+        { "name": "NODE_ENV", "value": "production" },
+        { "name": "PORT", "value": "3000" },
+        { "name": "SERVICE_NAME", "value": "auth-service" }
+      ],
+      "logConfiguration": {
+        "logDriver": "awslogs",
+        "options": {
+          "awslogs-group": "/ecs/microservices-fargate/auth",
+          "awslogs-region": "us-east-1",
+          "awslogs-stream-prefix": "auth"
+        }
+      }
+    }
+  ],
+  "requiresCompatibilities": ["FARGATE"],
+  "networkMode": "awsvpc",
+  "cpu": "256",
+  "memory": "512",
+  "family": "microservices-fargate-auth"
+}
+

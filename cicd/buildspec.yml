@@ -1,0 +1,43 @@
+version: 0.2
+
+phases:
+  pre_build:
+    commands:
+      - echo Logging in to Amazon ECR...
+      - aws --version
+      - aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com
+      - REPOSITORY_URI_AUTH=$AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$PROJECT_NAME/auth-service
+      - REPOSITORY_URI_ORDERS=$AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$PROJECT_NAME/orders-service
+      - REPOSITORY_URI_NOTIF=$AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$PROJECT_NAME/notifications-service
+      - COMMIT_HASH=$(echo $CODEBUILD_RESOLVED_SOURCE_VERSION | cut -c 1-7)
+      - IMAGE_TAG=${COMMIT_HASH:-latest}
+
+  build:
+    commands:
+      - echo Build started on `date`
+      - echo Building Auth Service Docker image...
+      - docker build -t $REPOSITORY_URI_AUTH:latest -t $REPOSITORY_URI_AUTH:$IMAGE_TAG ./services/auth
+      - echo Building Orders Service Docker image...
+      - docker build -t $REPOSITORY_URI_ORDERS:latest -t $REPOSITORY_URI_ORDERS:$IMAGE_TAG ./services/orders
+      - echo Building Notifications Service Docker image...
+      - docker build -t $REPOSITORY_URI_NOTIF:latest -t $REPOSITORY_URI_NOTIF:$IMAGE_TAG ./services/notifications
+
+  post_build:
+    commands:
+      - echo Build completed on `date`
+      - echo Pushing the Docker images to ECR...
+      - docker push $REPOSITORY_URI_AUTH:latest
+      - docker push $REPOSITORY_URI_AUTH:$IMAGE_TAG
+      - docker push $REPOSITORY_URI_ORDERS:latest
+      - docker push $REPOSITORY_URI_ORDERS:$IMAGE_TAG
+      - docker push $REPOSITORY_URI_NOTIF:latest
+      - docker push $REPOSITORY_URI_NOTIF:$IMAGE_TAG
+      - echo Writing deployment artifacts for CodeDeploy Blue/Green...
+      - sed -e "s|<IMAGE_TAG>|$IMAGE_TAG|g" -e "s|<REPOSITORY_URI>|$REPOSITORY_URI_AUTH|g" cicd/taskdef-template.json > taskdef-auth.json
+      - cp cicd/appspec-auth.yaml appspec-auth.yaml
+
+artifacts:
+  files:
+    - taskdef-auth.json
+    - appspec-auth.yaml
+
